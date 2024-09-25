@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Router Detail</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100">
+    <%- include('partials/navbar') %>
+    <div class="p-6">
+      <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-4">Detail Router </h2>
+
+        <% if (router) { %>
+        <div class="mb-4">
+          <p>
+            <strong class="font-semibold">Nama Router:</strong> <%= router.name
+            %>
+          </p>
+          <p>
+            <strong class="font-semibold">IP Address:</strong> <%= router.ip %>
+          </p>
+          <p><strong class="font-semibold">Port:</strong> <%= router.port %></p>
+          <p>
+            <strong class="font-semibold">Username:</strong> <%= router.username
+            %>
+          </p>
+          <p>
+            <strong class="font-semibold">Password:</strong> <%= router.password
+            %>
+          </p>
+          <p>
+            <strong class="font-semibold">Status:</strong> <%= connected ?
+            "Connected" : "Disconnected" %>
+          </p>
+        </div>
+
+        <% if (dhcpClients.length > 0) { %>
+        <h3 class="text-xl font-semibold mb-2">DHCP Clients</h3>
+        <ul class="list-disc pl-5 mb-4">
+          <% dhcpClients.forEach(client => { %>
+          <li>
+            <strong>IP:</strong> <%= client.address %>,
+            <strong>Gateway:</strong> <%= client.gateway %>,
+            <strong>Interface:</strong> <%= client.interface %>,
+            <strong>Status:</strong> <%= client.status %>
+          </li>
+          <% }) %>
+        </ul>
+        <% } else if (connected) { %>
+        <p>No DHCP clients found.</p>
+        <% } %>
+
+        <!-- Include the hotspotProfiles partial here -->
+        <%- include('partials/hotspotProfiles', { router: router }) %>
+
+        <div class="flex space-x-4 mt-4">
+          <form
+            action="/r/delete/<%= router._id %>"
+            method="POST"
+            onsubmit="return confirm('Apakah Anda yakin ingin menghapus router ini?');"
+          >
+            <button
+              type="submit"
+              class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition duration-300"
+            >
+              Hapus Router
+            </button>
+          </form>
+
+          <a href="/r/edit/<%= router._id %>">
+            <button
+              class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+            >
+              Edit Router
+            </button>
+          </a>
+        </div>
+
+        <% } else { %>
+        <p>Tidak ada informasi router yang tersedia.
+        </p>
+        <% } %>
+
+        <a href="/dashboard" class="text-blue-500 hover:underline mt-4 block"
+          >Kembali ke Dashboard</a
+        >
+      </div>
+    </div>
+  </body>
+</html>
