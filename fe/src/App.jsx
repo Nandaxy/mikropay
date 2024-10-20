@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useNavigate, Link } from "react-router-dom";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Member from "./pages/Member";
-import Header from "./components/layout/Header";
+
 import TripaySettings from "./pages/TripaySettings";
 import GeneralSettings from "./pages/GeneralSettings";
 import RouterSettings from "./pages/RouterSettings";
@@ -14,6 +14,7 @@ import { refreshToken } from "./lib/auth";
 import { Toaster } from "@/components/ui/toaster";
 import HotspotUser from "./pages/HotspotUser";
 import HotspotUserDetail from "./pages/HotspotUserDetail";
+import PppoePool from "./pages/PppoePool";
 
 const useTokenRefresh = (
   setAccessToken,
@@ -94,7 +95,7 @@ const App = () => {
   return (
     <div className="min-h-screen">
       <Toaster />
-      <Header />
+
       <Routes>
         <Route
           path="/login"
@@ -217,8 +218,45 @@ const App = () => {
           }
         />
 
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route
+          path="/pppoe/pool"
+          element={
+            !accessToken || isTokenExpired ? (
+              <Navigate to="/login" />
+            ) : role === "admin" ? (
+              <PppoePool user={decodedToken} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
 
+        <Route
+          path="/pppoe/profile"
+          element={
+            !accessToken || isTokenExpired ? (
+              <Navigate to="/login" />
+            ) : role === "admin" ? (
+              <CoomingSoon />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/service/limit"
+          element={
+            !accessToken || isTokenExpired ? (
+              <Navigate to="/login" />
+            ) : role === "admin" ? (
+              <CoomingSoon />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* Rute Member */}
         <Route
           path="/member"
           element={
@@ -232,6 +270,8 @@ const App = () => {
           }
         />
 
+        {/* Rute Public */}
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
@@ -243,6 +283,18 @@ const NotFound = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center">
       <h1 className="text-4xl font-bold text-red-500 mb-4">404</h1>
       <p className="text-lg mb-4">Page Not Found</p>
+      <Link to="/" className="text-blue-500 hover:underline">
+        Go back to Home
+      </Link>
+    </div>
+  );
+};
+
+const CoomingSoon = () => {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center">
+      <h1 className="text-4xl font-bold text-red-500 mb-4">Cooming Soon</h1>
+      <p className="text-lg mb-4">Featues not available yet</p>
       <Link to="/" className="text-blue-500 hover:underline">
         Go back to Home
       </Link>

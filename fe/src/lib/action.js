@@ -2,6 +2,8 @@ import { BASE_URL } from "./config";
 import axios from "axios";
 
 export const postAction = async ({ endpoint, data }) => {
+  console.log(data);
+
   try {
     const token = localStorage.getItem("accessToken");
 

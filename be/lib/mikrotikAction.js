@@ -21,7 +21,7 @@ const mikrotikAction = async (router, method, endpoint, body) => {
 
         return { status: true, data: response.data };
     } catch (error) {
-        return { status: false };
+        return { status: false ,message : error.message, error: error};
     }
 };
 

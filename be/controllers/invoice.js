@@ -3,7 +3,7 @@ const Transaction = require("../models/Transaction");
 exports.getInvoice = async (req, res) => {
     const { id } = req.params;
   try {
-    const transactions = await Transaction.find({reference: id});
+    const transactions = await Transaction.find({reference: id});;
 
     if (!transactions) {
       return res.status(404).json({

@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
 
-const HotspotProfile = new mongoose.Schema({
+const PppoeProfile = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     profile: { type: String, unique: true },
-    sessionTimeout: { type: String },
-    sharedUsers: { type: String },
     rateLimit: { type: String },
     price: { type: Number },
-    code: { type: String },
+    remoteAddress: { type: String },
+    localAddress: { type: String },
+    onlyOne: { type: String },
+    exp : { type: String},
     router: { type: mongoose.Schema.Types.ObjectId, ref: "Router" },
     createdAt: { type: Date, default: Date.now },
 
 });
 
-module.exports = mongoose.model("HotspotProfile", HotspotProfile);
+module.exports = mongoose.model("PppoeProfile", PppoeProfile);

@@ -21,7 +21,18 @@ const HotspotUserMain = ({ routerData }) => {
       //   console.log(response.data);
     };
 
+    const getActiveHotspot = async () => {
+      const response = await mikrotikAction({
+        router: routerData,
+        method: "GET",
+        endpoint: "ip/hotspot/active",
+      });
+      setActiveHotspot(response.data);
+      //   console.log(response.data);
+    };
+
     getUserHotspot();
+    getActiveHotspot();
   }, [routerData]);
 
   return (
@@ -32,11 +43,11 @@ const HotspotUserMain = ({ routerData }) => {
           <TabsTrigger value="active">User Active</TabsTrigger>
         </TabsList>
         <TabsContent value="user">
-          <h1>Tes User</h1>
           <HotspotUserTable userHotspot={userHotspot} />
         </TabsContent>
         <TabsContent value="active">
           <h1>Tes Active</h1>
+          <HotspotUserTable userHotspot={activeHotspot} />
         </TabsContent>
       </Tabs>
     </div>

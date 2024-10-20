@@ -4,9 +4,38 @@ const Router = require("../models/Router");
 const PaymentGateway = require("../models/paymentGateway");
 const HotspotProfile = require("../models/HotspotProfile");
 const Transaction = require("../models/Transaction");
+const IpPool = require("../models/IpPool");
+const PppoeProfile = require("../models/PppoeProfile");
 const { authenticateToken, authorizeAdmin } = require("../middleware/auth");
 const router = express.Router();
 const axios = require("axios");
+const { z } = require("zod");
+const mikrotikAction = require("../lib/mikrotikAction");
+
+// -------------Validasi--------------------------------------
+const isValidIP = (ip) => {
+  const ipRegex =
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  return ipRegex.test(ip);
+};
+
+const ipRangeSchema = z.object({
+  name: z.string().nonempty("Name is required"),
+  address: z.string().refine(
+    (value) => {
+      const rangeRegex =
+        /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\-(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+      if (rangeRegex.test(value)) {
+        const [startIP, endIP] = value.split("-");
+        return isValidIP(startIP) && isValidIP(endIP);
+      }
+      return isValidIP(value);
+    },
+    {
+      message: "Invalid IP range format or IP addresses",
+    }
+  ),
+});
 
 router.post(
   "/admin/users/add",
@@ -1030,12 +1059,12 @@ router.get(
       let totalTransactions;
 
       if (all) {
-        transactionData = await Transaction.find().sort({ createdAt: -1 });
+        transactionData = await Transaction.find().sort({ created_at: -1 });
         totalTransactions = transactionData.length;
       } else {
         totalTransactions = await Transaction.countDocuments();
         transactionData = await Transaction.find()
-          .sort({ createdAt: -1 })
+          .sort({ created_at: -1 })
           .skip(skip)
           .limit(limit);
       }
@@ -1059,5 +1088,275 @@ router.get(
     }
   }
 );
+
+// --------------------------- POOL ---------------------------
+
+router.post(
+  "/admin/pool/add",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      // Validasi menggunakan Zod
+      const parsedData = ipRangeSchema.parse(req.body);
+
+      const { name, address } = parsedData;
+
+      const existingPool = await IpPool.findOne({ name });
+
+      if (existingPool) {
+        return res.json({
+          status: 400,
+          message: "Pool with this name already exists",
+        });
+      }
+
+      const pool = new IpPool({
+        name,
+        address,
+      });
+
+      await pool.save();
+
+      res.json({
+        status: 200,
+        message: "success",
+        data: pool,
+      });
+    } catch (error) {
+      // Tangani error validasi Zod
+      if (error instanceof z.ZodError) {
+        return res.json({
+          status: 400,
+          message: error.errors.map((err) => err.message).join(", "),
+        });
+      }
+      res.json({ status: 500, message: "error" });
+    }
+  }
+);
+
+router.post(
+  "/admin/pool/edit",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { poolId } = req.body;
+
+      const parsedData = ipRangeSchema.parse(req.body);
+
+      const { name, address } = parsedData;
+
+      const existingPool = await IpPool.findById(poolId);
+
+      if (!existingPool) {
+        return res.json({
+          status: 404,
+          message: "Pool not found",
+        });
+      }
+
+      existingPool.name = name;
+      existingPool.address = address;
+
+      await existingPool.save();
+
+      res.json({
+        status: 200,
+        message: "Pool updated successfully",
+        data: existingPool,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.json({
+          status: 400,
+          message: error.errors.map((err) => err.message).join(", "),
+        });
+      }
+      res.json({
+        status: 500,
+        message: "Error updating pool",
+        error: error.message,
+      });
+    }
+  }
+);
+
+router.post(
+  "/admin/pool/delete",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { poolId } = req.body;
+
+      const existingPool = await IpPool.findById(poolId);
+
+      if (!existingPool) {
+        return res.json({
+          status: 404,
+          message: "Pool not found",
+        });
+      }
+
+      await IpPool.findByIdAndDelete(poolId);
+
+      res.json({
+        status: 200,
+        message: "Pool deleted successfully",
+      });
+    } catch (error) {
+      res.json({
+        status: 500,
+        message: "Error deleting pool",
+        error: error.message,
+      });
+    }
+  }
+);
+
+router.get(
+  "/admin/pool/list",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const pool = await IpPool.find();
+
+      if (!pool) {
+        return res.json({
+          status: 404,
+          message: "Pool not found",
+        });
+      }
+
+      res.json({
+        status: 200,
+        message: "Pool found successfully",
+        data: pool,
+      });
+    } catch (error) {
+      res.json({
+        status: 500,
+        message: "Error fetching pool",
+        error: error.message,
+      });
+    }
+  }
+);
+
+router.get(
+  "/admin/pool/find/:id",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const pool = await IpPool.findById(id);
+
+      if (!pool) {
+        return res.json({
+          status: 404,
+          message: "Pool not found",
+        });
+      }
+
+      res.json({
+        status: 200,
+        message: "Pool found successfully",
+        data: pool,
+      });
+    } catch (error) {
+      res.json({
+        status: 500,
+        message: "Error fetching pool",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// ------------------------------ PPPOE PROFILE ----------------]
+
+// router.post(
+//   "/admin/pppoe/profile/add",
+//   authenticateToken,
+//   authorizeAdmin,
+//   async (req, res) => {
+//     try {
+//       const {
+//         name,
+//         profile,
+//         rateLimit,
+//         price,
+//         remoteAddress,
+//         localAddress,
+//         onlyOne,
+//         exp,
+//         router,
+//       } = req.body;
+
+//       const data = {
+//         "name": profile,
+//         "rate-limit": rateLimit,
+//         "remote-address": remoteAddress,
+//         "local-address": localAddress,
+//         "only-one": onlyOne,
+//       };
+
+//       const existingProfile = await PppoeProfile.findOne({ name });
+
+//       if (existingProfile) {
+//         return res.json({
+//           status: 400,
+//           message: "Profile with this name already exists",
+//         });
+//       }
+
+//       const routerData = await Router.findById(router);
+
+//       const mikrotik = await mikrotikAction(
+//         routerData,
+//         "put",
+//         "ppp/profile",
+//         data
+//       );
+
+//       console.log(mikrotik);
+
+//       if (!mikrotik.status) {
+//         return res.json({
+//           status: 500,
+//           message: "Error creating profile on Mikrotik",
+//         });
+//       }
+
+//       const pppoeProfile = new PppoeProfile({
+//         name,
+//         profile,
+//         rateLimit,
+//         price,
+//         remoteAddress,
+//         localAddress,
+//         onlyOne,
+//         exp,
+//         router,
+//       });
+
+//       await pppoeProfile.save();
+
+//       res.json({
+//         status: 200,
+//         message: "success",
+//         data: pppoeProfile,
+//       });
+//     } catch (error) {
+//       console.log(error);
+//       res.json({ status: 500, message: "error" });
+//     }
+//   }
+// );
 
 module.exports = router;

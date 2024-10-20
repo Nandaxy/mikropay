@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { BASE_URL } from "@/lib/config";
+
 import {
   Bell,
   CircleUser,
@@ -17,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,15 +36,54 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { postAction } from "@/lib/action";
 
 const Sidebar = ({ children, user }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { toast } = useToast();
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("refreshToken");
+      const payload = {
+        token,
+      };
+
+      const response = await postAction({
+        endpoint: "api/auth/logout",
+        data: payload,
+      });
+
+      console.log(response.data.status);
+
+      if (response.data.status == 200) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+
+        toast({
+          title: "Logout Success",
+          description: "You have been logged out.",
+          variant: "default",
+        });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+        // navigate("/login");
+      } else {
+        toast({
+          title: "Logout Failed",
+          description: "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      // console.error("Error during logout:", error);
+      toast({
+        title: "Logout Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -105,10 +146,16 @@ const Sidebar = ({ children, user }) => {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="ml-8">
                   <Link
-                    to="/router"
+                    to="/pppoe/profile"
                     className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
                   >
                     Profile
+                  </Link>
+                  <Link
+                    to="/pppoe/pool"
+                    className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
+                  >
+                    IP Pool
                   </Link>
                 </CollapsibleContent>
               </Collapsible>
@@ -159,6 +206,12 @@ const Sidebar = ({ children, user }) => {
                     className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
                   >
                     Tripay
+                  </Link>
+                  <Link
+                    to={`${BASE_URL}download/template-hotspot`}
+                    className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
+                  >
+                    Download Login Page
                   </Link>
                 </CollapsibleContent>
               </Collapsible>
@@ -225,10 +278,16 @@ const Sidebar = ({ children, user }) => {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="ml-8">
                     <Link
-                      to="#"
+                      to="/pppoe/profile"
                       className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
                     >
                       Profile
+                    </Link>
+                    <Link
+                      to="/pppoe/pool"
+                      className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
+                    >
+                      IP Pool
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
@@ -279,6 +338,12 @@ const Sidebar = ({ children, user }) => {
                       className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
                     >
                       Tripay
+                    </Link>
+                    <Link
+                      to={`${BASE_URL}download/template-hotspot`}
+                      className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
+                    >
+                      Download Login Page
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
