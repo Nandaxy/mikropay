@@ -22,6 +22,13 @@ const createAdminUser = async () => {
         const adminPassword = process.env.ADMIN_PASSWORD;
         const adminRole = "admin";
 
+        if (!adminUsername || !adminPassword) {
+            console.error(
+                "Error: ADMIN_USERNAME or ADMIN_PASSWORD is not set in the environment variables."
+            );
+            process.exit(1)
+        }
+
         const existingAdmin = await User.findOne({ username: adminUsername });
         if (existingAdmin) {
             console.log("Admin user already exists");

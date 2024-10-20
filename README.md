@@ -31,7 +31,7 @@ MikroPay adalah sebuah aplikasi yang berfungsi sebagai gateway pembayaran untuk 
    Masuk ke folder be dan buat file `.env` dengan menggunakan file `.env.example`.
    ```
    cd be
-   cp .env.example .env
+   cp env.example .env
    nano .env
    ```
 
@@ -53,3 +53,4 @@ MikroPay adalah sebuah aplikasi yang berfungsi sebagai gateway pembayaran untuk 
     bash deploy.sh
 
     ```
+    Instalasi Selesai , Buka http://localhost:3000

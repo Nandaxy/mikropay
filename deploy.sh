@@ -35,7 +35,7 @@ echo "Menginstall module Express..."
 cd be || exit
 npm install || { echo "Gagal menginstall dependencies Express"; exit 1; }
 
-npm install nodemon concurrently
+npm install -g nodemon concurrently
 
 pm2 start server.js || { echo "Gagal memulai server dengan PM2"; exit 1; }
 

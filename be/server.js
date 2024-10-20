@@ -24,16 +24,16 @@ app.use(express.static(path));
 app.use(express.static(publicPath));
 
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB connected");
-    createAdminUser();
-    createPaymentGateway();
-  })
-  .catch((err) => console.log(err));
+    .connect(process.env.MONGO_URI)
+    .then(() => {
+        console.log("MongoDB connected");
+        createAdminUser();
+        createPaymentGateway();
+    })
+    .catch(err => console.log(err));
 
 app.get("/", function (req, res) {
-  res.sendFile(path + "index.html");
+    res.sendFile(path + "index.html");
 });
 
 app.use("/api/auth", authRoutes);
@@ -44,11 +44,25 @@ app.use("/", invoiceRoutes);
 app.use("/", productRoutes);
 
 app.get("/error", (req, res) => {
-  res.send("Ada Kesalahan. Silahkan coba lagi nanti");
+    res.send("Ada Kesalahan. Silahkan coba lagi nanti");
 });
 
 app.get("/download/template-hotspot", (req, res) => {
-  res.download(publicPath + "hotspot.zip");
+    res.download(publicPath + "hotspot.zip");
+});
+// sementara untuk fix error
+app.get("/login", (req, res) => {
+    res.redirect("/#/login");
+});
+
+app.get("/status", (req, res) => {
+    const dbStatus = mongoose.connection.readyState;
+
+    if (dbStatus === 1) {
+        res.json({ status: true, message: "Database connected" });
+    } else {
+        res.json({ status: false, message: "Database not connected" });
+    }
 });
 
 const PORT = process.env.PORT || 5000;

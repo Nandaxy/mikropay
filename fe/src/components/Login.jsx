@@ -1,19 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../lib/auth"; // Assuming you have login function here
+import { login } from "../lib/auth";
+import { getAction } from "../lib/action";
 
 const Login = ({ setAccessToken }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [dbStatus, setDbStatus] = useState(true);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const checkDbStatus = async () => {
+            try {
+                const response = await getAction({ endpoint: "status" });
+
+                setDbStatus(response.status);
+            } catch (err) {
+                setDbStatus(false);
+            }
+        };
+        checkDbStatus();
+    }, []);
 
     const handleSubmit = async e => {
         e.preventDefault();
         setError(""); // Clear any previous errors
         try {
             const { data } = await login({ username, password });
-
             console.log(data);
 
             if (data.status === 200) {
@@ -26,9 +40,24 @@ const Login = ({ setAccessToken }) => {
             }
         } catch (error) {
             setError("Invalid username or password. Please try again.");
-            console.error(error);
         }
     };
+
+    const DbDownComponent = () => (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-red-100">
+            <h1 className="text-3xl font-bold text-red-600 mb-4">Oops!</h1>
+            <p className="text-lg text-red-500 px-6 text-center">
+                Our database is currently down. Please try again later.
+            </p>
+            <p className="text-lg text-red-500">
+                The application may not run properly
+            </p>
+        </div>
+    );
+
+    if (!dbStatus) {
+        return <DbDownComponent />;
+    }
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-100">

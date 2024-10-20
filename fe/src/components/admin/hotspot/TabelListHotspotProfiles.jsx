@@ -45,6 +45,8 @@ const TabelListHotspotProfiles = ({ refreshData }) => {
         fetchData();
     }, [refreshData]);
 
+    console.log(profiles);
+
     const handleDelete = async profileId => {
         try {
             const del = await postAction({
@@ -109,7 +111,9 @@ const TabelListHotspotProfiles = ({ refreshData }) => {
                             <TableCell>{profile.name}</TableCell>
                             <TableCell>{profile.profile}</TableCell>
                             <TableCell className="whitespace-nowrap">
-                                {profile.router.name}
+                                {profile.router?.name
+                                    ? profile.router?.name
+                                    : "null (Router Dihapus)"}
                             </TableCell>
                             <TableCell>{profile.sessionTimeout}</TableCell>
                             <TableCell>{profile.sharedUsers}</TableCell>
