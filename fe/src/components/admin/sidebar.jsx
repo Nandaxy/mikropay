@@ -208,6 +208,12 @@ const Sidebar = ({ children, user }) => {
                     Tripay
                   </Link>
                   <Link
+                    to={`/template?mode=voucher`}
+                    className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
+                  >
+                    Template Editor
+                  </Link>
+                  <Link
                     to={`${BASE_URL}download/template-hotspot`}
                     className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
                   >
@@ -338,6 +344,12 @@ const Sidebar = ({ children, user }) => {
                       className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
                     >
                       Tripay
+                    </Link>
+                    <Link
+                      to={`/template?mode=voucher`}
+                      className="mx-[-0.65rem] flex items-center gap-4 rounded-xl  px-3 py-2 text-muted-foreground hover:text-foreground"
+                    >
+                      Template Editor
                     </Link>
                     <Link
                       to={`${BASE_URL}download/template-hotspot`}

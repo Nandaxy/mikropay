@@ -1,12 +1,9 @@
 #!/bin/bash
 
 echo "Menginstall PM2..."
-if command -v pm2 &>/dev/null; then
-    echo "PM2 sudah terinstall."
-else
-    npm install -g pm2 || { echo "Gagal menginstall PM2"; exit 1; }
-    echo "PM2 berhasil diinstall."
-fi
+
+npm install -g pm2 || { echo "Gagal menginstall PM2"; exit 1; }
+echo "PM2 berhasil diinstall."
 
 CONFIG_FILE="fe/src/lib/config.js"
 

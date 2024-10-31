@@ -14,7 +14,7 @@ const RouterStatus = ({ router }) => {
           method: "GET",
           endpoint: "system/identity",
         });
-        console.log(response);
+        // console.log(response);
 
         if (response.status === 200) {
           setStatus("Online");

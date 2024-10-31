@@ -1,6 +1,9 @@
 const axios = require("axios");
 
 const mikrotikAction = async (router, method, endpoint, body) => {
+
+    // console.log(router.ip, router.port, router.username, router.password);
+
     const url = `http://${router.ip}:${router.port}/rest/${endpoint}`;
 
     const auth = {

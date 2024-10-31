@@ -57,11 +57,11 @@ const HotspotUser = ({ user }) => {
                   </CardTitle>
                   <CardDescription>
                     <RouterStatus router={router} />
-                    <p className="text-xs mt-2">
+                    <span className="text-xs mt-2">
                       {router.isPaymentGatewayActive
                         ? "Payment Gateway Active"
                         : "Payment Gateway Inactive"}
-                    </p>
+                    </span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

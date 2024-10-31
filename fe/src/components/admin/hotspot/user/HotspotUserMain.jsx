@@ -1,11 +1,10 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HotspotUserTable from "./HotspotDataTable";
-import { useEffect, useState } from "react";
 import { mikrotikAction } from "../../../../lib/action";
 
+// eslint-disable-next-line react/prop-types
 const HotspotUserMain = ({ routerData }) => {
   const [userHotspot, setUserHotspot] = useState([]);
   const [activeHotspot, setActiveHotspot] = useState([]);
@@ -17,8 +16,8 @@ const HotspotUserMain = ({ routerData }) => {
         method: "GET",
         endpoint: "ip/hotspot/user",
       });
-      setUserHotspot(response.data);
-      //   console.log(response.data);
+      const filteredData = response.data?.filter(user => user.name !== "default-trial");
+      setUserHotspot(filteredData);
     };
 
     const getActiveHotspot = async () => {
@@ -27,8 +26,8 @@ const HotspotUserMain = ({ routerData }) => {
         method: "GET",
         endpoint: "ip/hotspot/active",
       });
-      setActiveHotspot(response.data);
-      //   console.log(response.data);
+      const filteredData = response.data?.filter(user => user.name !== "default-trial");
+      setActiveHotspot(filteredData);
     };
 
     getUserHotspot();
@@ -43,11 +42,10 @@ const HotspotUserMain = ({ routerData }) => {
           <TabsTrigger value="active">User Active</TabsTrigger>
         </TabsList>
         <TabsContent value="user">
-          <HotspotUserTable userHotspot={userHotspot} />
+          <HotspotUserTable userHotspot={userHotspot} routerData={routerData} />
         </TabsContent>
         <TabsContent value="active">
-          <h1>Tes Active</h1>
-          <HotspotUserTable userHotspot={activeHotspot} />
+          <HotspotUserTable userHotspot={activeHotspot} routerData={routerData} />
         </TabsContent>
       </Tabs>
     </div>

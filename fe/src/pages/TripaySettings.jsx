@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/admin/sidebar.jsx";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -6,8 +6,15 @@ import { Input } from "@/components/ui/input";
 import { postAction, getAction } from "../lib/action";
 import { useToast } from "../hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
+// eslint-disable-next-line react/prop-types
 const TripaySettings = ({ user }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -18,12 +25,12 @@ const TripaySettings = ({ user }) => {
     endpoint: "",
   });
 
- 
   useEffect(() => {
     const fetchTripay = async () => {
       try {
-        const r = await getAction({endpoint: "api/admin/payment-gateway/tripay"});
-        // console.log(r);
+        const r = await getAction({
+          endpoint: "api/admin/payment-gateway/tripay",
+        });
         if (r.status === 200) {
           setFormData({
             merchantCode: r.data.merchantCode,
@@ -39,7 +46,6 @@ const TripaySettings = ({ user }) => {
           });
         }
       } catch (error) {
-        // console.error(error);
         toast({
           title: "Kesalahan",
           description: "Terjadi kesalahan saat mengambil data",
@@ -49,7 +55,7 @@ const TripaySettings = ({ user }) => {
     };
 
     fetchTripay();
-  }, []);
+  }, [toast]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,12 +80,16 @@ const TripaySettings = ({ user }) => {
       });
     }
 
-    setLoading(false); 
+    setLoading(false);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleEndpointChange = (value) => {
+    setFormData((prevData) => ({ ...prevData, endpoint: value }));
   };
 
   return (
@@ -128,15 +138,22 @@ const TripaySettings = ({ user }) => {
             </div>
             <div>
               <Label htmlFor="endpoint">URL Endpoint</Label>
-              <Input
-                id="endpoint"
-                name="endpoint"
+              <Select
                 value={formData.endpoint}
-                onChange={handleChange}
-                placeholder="Masukkan URL Endpoint"
-                className="mt-1"
-                required
-              />
+                onValueChange={handleEndpointChange}
+              >
+                <SelectTrigger className="w-full mt-1">
+                  <SelectValue placeholder="Pilih URL Endpoint" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="https://tripay.co.id/api/">
+                    Production
+                  </SelectItem>
+                  <SelectItem value="https://tripay.co.id/api-sandbox/">
+                    Development / Sandbox
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex justify-end mt-6">
               <Button
@@ -144,7 +161,14 @@ const TripaySettings = ({ user }) => {
                 className="w-full md:w-1/4"
                 disabled={loading}
               >
-                {loading ? <Loader2 className="animate-spin mr-2" /> : "Simpan"}
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  "Simpan"
+                )}
               </Button>
             </div>
           </form>

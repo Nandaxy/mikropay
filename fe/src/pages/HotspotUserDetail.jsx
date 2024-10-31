@@ -25,7 +25,7 @@ const HotspotUserDetail = ({ user }) => {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
   // console.log(routerData);
 

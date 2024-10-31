@@ -29,6 +29,11 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import AddUserHotspot from "./add/AddUserHotspot";
+import AddUserHotspotBatch from "./add/AddUserHotspotBatch";
+import { postAction } from "../../../../lib/action";
+import { useToast } from "@/hooks/use-toast";
 
 const statusOptions = [
   { value: "", label: "All" },
@@ -36,8 +41,6 @@ const statusOptions = [
   { value: "In-use", label: "In-use" },
   { value: "Expired", label: "Expired" },
 ];
-
-
 
 const columns = [
   {
@@ -163,15 +166,23 @@ const columns = [
   },
 ];
 
-export default function HotspotUserTable({ userHotspot }) {
+export default function HotspotUserTable({
+  userHotspot,
+  routerData,
+  refreshData,
+}) {
+  const { toast } = useToast();
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [voucherTemplate, setVoucherTemplate] = useState(null);
 
   // Pagination state
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10); // Number of rows per page
+  const [pageSize, setPageSize] = useState(100000); // Number of rows per page
 
   const table = useReactTable({
     data: userHotspot || [], // Default to an empty array if userHotspot is undefined
@@ -196,13 +207,51 @@ export default function HotspotUserTable({ userHotspot }) {
     },
   });
 
-  // Function to handle generating vouchers
-  const handleGenerateVoucher = () => {
+  // Updated function to handle generating vouchers
+  const handleGenerateVoucher = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
     const selectedData = selectedRows.map((row) => row.original);
-    console.log("Selected data for voucher generation:", selectedData);
-    // Logic to generate vouchers goes here
+
+    try {
+      const response = await postAction({
+        endpoint: "api/admin/hotspot/voucher/generate",
+        // eslint-disable-next-line react/prop-types
+        data: { users: selectedData, routerId: routerData._id },
+      });
+
+      if (response.status === 200) {
+        setVoucherTemplate(response.data.template);
+
+        toast({
+          title: "Vouchers generated successfully",
+          description: "The vouchers have been generated and saved.",
+        });
+
+        const newTab = window.open("", "VoucherTemplate");
+        newTab.document.open();
+        newTab.document.write(response.data.template);
+        newTab.document.close();
+      } else {
+        console.error("Failed to generate vouchers:", response.data.message);
+        toast({
+          title: "Error generating vouchers",
+          description: "An error occurred while generating the vouchers.",
+        });
+      }
+    } catch (error) {
+      console.error("Error generating vouchers:", error);
+      toast({
+        title: "Error generating vouchers",
+        description: "An error occurred while generating the vouchers.",
+      });
+    }
   };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  // Function to handle generating vouchers
 
   // Function to handle deleting batch
   const handleDeleteBatch = () => {
@@ -237,8 +286,26 @@ export default function HotspotUserTable({ userHotspot }) {
             </option>
           ))}
         </select>
-        <Button className="ml-2">+ User</Button>
-        <Button className="ml-2">+ User Batch</Button>
+
+        {/* <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}> */}
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button className="ml-2">+ User</Button>
+          </DialogTrigger>
+          <DialogContent className="flex flex-col justify-center items-center md:w-fit">
+            <AddUserHotspot routerData={routerData} onClose={handleClose} />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="ml-2">+ User Batch</Button>
+          </DialogTrigger>
+          <DialogContent className="flex flex-col justify-center items-center md:w-fit">
+            <AddUserHotspotBatch routerData={routerData} />
+          </DialogContent>
+        </Dialog>
+
         <Button
           className="ml-2"
           onClick={handleGenerateVoucher}
@@ -295,6 +362,13 @@ export default function HotspotUserTable({ userHotspot }) {
         </Table>
       </div>
       {/* Pagination controls can be added here */}
+      {/* <Pagination
+        currentPage={table.getState().pagination.pageIndex + 1}
+        totalPages={table.getPageCount()}
+        pageSize={table.getState().pagination.pageSize}
+        setPageIndex={(index) => table.setPageIndex(index)}
+        setPageSize={(size) => table.setPageSize(size)}
+      /> */}
     </div>
   );
 }

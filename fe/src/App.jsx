@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate, Link } from "react-router-dom";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Member from "./pages/Member";
+import NotFound from "./components/utils/NotFound";
 
 import TripaySettings from "./pages/TripaySettings";
 import GeneralSettings from "./pages/GeneralSettings";
@@ -15,6 +16,7 @@ import { Toaster } from "@/components/ui/toaster";
 import HotspotUser from "./pages/HotspotUser";
 import HotspotUserDetail from "./pages/HotspotUserDetail";
 import PppoePool from "./pages/PppoePool";
+import Template from "./pages/Template";
 
 const useTokenRefresh = (
   setAccessToken,
@@ -255,6 +257,18 @@ const App = () => {
             )
           }
         />
+        <Route
+          path="template"
+          element={
+            !accessToken || isTokenExpired ? (
+              <Navigate to="/login" />
+            ) : role === "admin" ? (
+              <Template user={decodedToken} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
 
         {/* Rute Member */}
         <Route
@@ -274,18 +288,6 @@ const App = () => {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </div>
-  );
-};
-
-const NotFound = () => {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center">
-      <h1 className="text-4xl font-bold text-red-500 mb-4">404</h1>
-      <p className="text-lg mb-4">Page Not Found</p>
-      <Link to="/" className="text-blue-500 hover:underline">
-        Go back to Home
-      </Link>
     </div>
   );
 };
