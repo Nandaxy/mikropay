@@ -135,7 +135,7 @@ exports.addBatchUserHotspot = async (req, res) => {
         {
           name: username,
           password: password,
-          profile: profileData.name,
+          profile: profileData.profile,
           "limit-uptime": profileData.sessionTimeout,
           comment: `vc-${new Date().getTime()}`,
         }
