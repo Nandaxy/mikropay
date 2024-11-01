@@ -32,7 +32,7 @@ exports.addUserHotspot = async (req, res) => {
       {
         name: name,
         password: password,
-        profile: profileData.name,
+        profile: profileData.profile,
         "limit-uptime": profileData.sessionTimeout,
         comment: comment,
       }
