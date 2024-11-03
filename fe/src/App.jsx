@@ -277,7 +277,7 @@ const App = () => {
             !accessToken || isTokenExpired ? (
               <Navigate to="/login" />
             ) : role === "user" ? (
-              <Member />
+              <Member user={decodedToken} />
             ) : (
               <Navigate to="/dashboard" />
             )

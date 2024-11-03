@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../lib/auth";
 import { getAction } from "../lib/action";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
+// eslint-disable-next-line react/prop-types
 const Login = ({ setAccessToken }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [dbStatus, setDbStatus] = useState(true);
   const navigate = useNavigate();
+  const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const checkDbStatus = async () => {
@@ -24,8 +29,13 @@ const Login = ({ setAccessToken }) => {
   }, []);
 
   const handleSubmit = async (e) => {
+    if (!username || !password) {
+      setError("Please enter your username and password.");
+      return;
+    }
     e.preventDefault();
-    setError(""); // Clear any previous errors
+    setError("");
+    setIsLoading(true);
     try {
       const { data } = await login({ username, password });
       console.log(data);
@@ -34,14 +44,23 @@ const Login = ({ setAccessToken }) => {
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("refreshToken", data.refreshToken);
         setAccessToken(data.accessToken);
+        toast({
+          title: "Login Berhasil",
+          description: "Mengarahkan ke dashboard dalam 1 detik",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
         setTimeout(() => {
-          navigate("/#/dashboard");
+          navigate("/dashboard");
         }, 1000);
       } else {
-        setError("Invalid username or password. Please try again.");
+        setError("Username atau password salah. Silahkan coba lagi.");
       }
     } catch (error) {
-      setError("Invalid username or password. Please try again.");
+      setError("Username atau password salah. Silahkan coba lagi.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -103,12 +122,22 @@ const Login = ({ setAccessToken }) => {
               className="w-full p-3 mt-1 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full px-4 py-2 font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-          >
-            Sign In
-          </button>
+
+          {!isLoading ? (
+            <Button
+              type="submit"
+              className="w-full px-4 py-2 font-bold rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            >
+              Sign In
+            </Button>
+          ) : (
+            <Button
+              disabled
+              className="w-full px-4 py-2 font-bold rounded-md"
+            >
+              Loading
+            </Button>
+          )}
         </form>
       </div>
     </div>
