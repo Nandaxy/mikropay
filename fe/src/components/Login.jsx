@@ -87,65 +87,74 @@ const Login = ({ setAccessToken }) => {
     return <DbDownComponent />;
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-md rounded-lg">
-        <h2 className="text-center text-2xl font-bold text-gray-700">Login</h2>
-        {error && (
-          <div className="text-red-500 text-sm text-center">{error}</div>
-        )}
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Username
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-3 mt-1 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 mt-1 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-            />
-          </div>
-
-          {!isLoading ? (
-            <Button
-              type="submit"
-              className="w-full px-4 py-2 font-bold rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-            >
-              Sign In
-            </Button>
-          ) : (
-            <Button disabled className="w-full px-4 py-2 font-bold rounded-md">
-              Loading
-            </Button>
+  if (dbStatus & (dbCode === "OK")) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-100">
+        <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-md rounded-lg">
+          <h2 className="text-center text-2xl font-bold text-gray-700">
+            Login
+          </h2>
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
           )}
-        </form>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full p-3 mt-1 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 mt-1 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              />
+            </div>
+
+            {!isLoading ? (
+              <Button
+                type="submit"
+                className="w-full px-4 py-2 font-bold rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+              >
+                Sign In
+              </Button>
+            ) : (
+              <Button
+                disabled
+                className="w-full px-4 py-2 font-bold rounded-md"
+              >
+                Loading
+              </Button>
+            )}
+          </form>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return <p>Loading....</p>;
 };
 
 export default Login;
