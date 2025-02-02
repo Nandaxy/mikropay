@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { mikrotikAction } from "../../../lib/action";
 import { useEffect, useState } from "react";
 
-const RouterStatus = ({ router }) => {
+const RouterStatus = ({ router, onStatusChange }) => {
   const [status, setStatus] = useState("Checking...");
 
   useEffect(() => {
@@ -18,19 +18,23 @@ const RouterStatus = ({ router }) => {
 
         if (response.status === 200) {
           setStatus("Online");
+          onStatusChange("Online");
         } else if (response.status === 401) {
           setStatus("Unauthorized");
+          onStatusChange("Unauthorized");
         } else {
           setStatus("Offline");
+          onStatusChange("Offline");
         }
       } catch (error) {
         console.error("Error checking status:", error);
         setStatus("Offline");
+        onStatusChange("Offline");
       }
     };
 
     checkStatus();
-  }, [router]);
+  }, [router, onStatusChange]);
 
   return (
     <div>

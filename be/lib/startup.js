@@ -16,37 +16,38 @@ function generateRandomName(length = 3) {
 }
 
 const createAdminUser = async () => {
-    try {
-        const adminUsername = process.env.ADMIN_USERNAME;
-        const adminEmail = `mikrotik-${generateRandomName()}@mikropay.com`;
-        const adminPassword = process.env.ADMIN_PASSWORD;
-        const adminRole = "admin";
+    console.log("Creating admin user is disabled");
+    // try {
+    //     const adminUsername = process.env.ADMIN_USERNAME;
+    //     const adminEmail = `mikrotik-${generateRandomName()}@mikropay.com`;
+    //     const adminPassword = process.env.ADMIN_PASSWORD;
+    //     const adminRole = "admin";
 
-        if (!adminUsername || !adminPassword) {
-            console.error(
-                "Error: ADMIN_USERNAME or ADMIN_PASSWORD is not set in the environment variables."
-            );
-            process.exit(1)
-        }
+    //     if (!adminUsername || !adminPassword) {
+    //         console.error(
+    //             "Error: ADMIN_USERNAME or ADMIN_PASSWORD is not set in the environment variables."
+    //         );
+    //         process.exit(1)
+    //     }
 
-        const existingAdmin = await User.findOne({ username: adminUsername });
-        if (existingAdmin) {
-            console.log("Admin user already exists");
-            return;
-        }
+    //     const existingAdmin = await User.findOne({ username: adminUsername });
+    //     if (existingAdmin) {
+    //         console.log("Admin user already exists");
+    //         return;
+    //     }
 
-        const adminUser = new User({
-            username: adminUsername,
-            email: adminEmail,
-            password: adminPassword,
-            role: adminRole
-        });
+    //     const adminUser = new User({
+    //         username: adminUsername,
+    //         email: adminEmail,
+    //         password: adminPassword,
+    //         role: adminRole
+    //     });
 
-        await adminUser.save();
-        console.log("Admin user created successfully");
-    } catch (error) {
-        console.error("Error creating admin user:", error);
-    }
+    //     await adminUser.save();
+    //     console.log("Admin user created successfully");
+    // } catch (error) {
+    //     console.error("Error creating admin user:", error);
+    // }
 };
 
 const createPaymentGateway = async () => {

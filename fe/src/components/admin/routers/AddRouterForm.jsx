@@ -43,6 +43,7 @@ const AddRouterForm = ({ onSuccess, onRefresh }) => {
         endpoint: "api/admin/routes/add",
         data: formData,
       });
+      // console.log("sponse.status" + response.status);
       if (response.status === 200) {
         onSuccess(); // Close the dialog
         onRefresh(); // Refresh the router list
@@ -54,13 +55,16 @@ const AddRouterForm = ({ onSuccess, onRefresh }) => {
       } else {
         toast({
           variant: "destructive",
-          description: "Router Gagal Ditambahkan.",
+          title: "Router Gagal Ditambahkan.",
+          description: response.data.message || "An error occurred.",
         });
       }
     } catch (error) {
+      console.error("Error adding router:", error);
       toast({
         variant: "destructive",
-        description: "Router Gagal Ditambahkan.",
+        title: "Router Gagal Ditambahkan.",
+        description: error.response?.data?.message || "An error occurred.",
       });
     } finally {
       setLoading(false);
@@ -104,6 +108,7 @@ const AddRouterForm = ({ onSuccess, onRefresh }) => {
             className="col-span-3"
             value={formData.port}
             onChange={handleChange}
+            placeholder="80"
             required
           />
         </div>
@@ -129,7 +134,6 @@ const AddRouterForm = ({ onSuccess, onRefresh }) => {
             className="col-span-3"
             value={formData.password}
             onChange={handleChange}
-            required
           />
         </div>
         <div className="grid grid-cols-4 items-center gap-4">

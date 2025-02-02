@@ -2,7 +2,7 @@ import { BASE_URL } from "./config";
 import axios from "axios";
 
 export const postAction = async ({ endpoint, data }) => {
-  console.log(data);
+  // console.log(data);
 
   try {
     const token = localStorage.getItem("accessToken");
@@ -18,6 +18,7 @@ export const postAction = async ({ endpoint, data }) => {
     return response;
   } catch (error) {
     console.error("Error making POST request:", error);
+    return error.response;
   }
 };
 

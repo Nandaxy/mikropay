@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAction, postAction } from "../lib/action.js"; // Adjust according to your action functions

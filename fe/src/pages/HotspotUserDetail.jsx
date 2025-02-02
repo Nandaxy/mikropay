@@ -9,7 +9,7 @@ import HotspotUserMain from "../components/admin/hotspot/user/HotspotUserMain";
 const HotspotUserDetail = ({ user }) => {
   const [routerData, setRouterData] = useState([]);
   const [isNotFound, setIsNotFound] = useState(false);
-
+  
   const { id } = useParams();
 
   useEffect(() => {

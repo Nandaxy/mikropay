@@ -17,6 +17,7 @@ import HotspotUser from "./pages/HotspotUser";
 import HotspotUserDetail from "./pages/HotspotUserDetail";
 import PppoePool from "./pages/PppoePool";
 import Template from "./pages/Template";
+import RegiterUserPage from "./pages/RegiterUserPage";
 
 const useTokenRefresh = (
   setAccessToken,
@@ -115,6 +116,8 @@ const App = () => {
             )
           }
         />
+
+        <Route path="/setup/install" element={<RegiterUserPage />} />
 
         <Route
           path="/dashboard"

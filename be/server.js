@@ -40,16 +40,19 @@ app.get("/", function (req, res) {
   res.sendFile(path + "index.html");
 });
 
+app.use("/status", require("./routes/status"));
+
+app.use("/api", require("./routes/admin/userApp"));
+
 app.use("/api/auth", authRoutes);
 app.use("/api", adminRoutes);
+app.use("/api", userHotspotRoutes);
+app.use("/api", voucher);
+app.use("/api", TemplateEditorRoutes);
 app.use("/bayar", bayarRoutes);
 app.use("/", callbackRoutes);
 app.use("/", invoiceRoutes);
 app.use("/", productRoutes);
-app.use("/api", userHotspotRoutes);
-
-app.use("/api", voucher);
-app.use("/api", TemplateEditorRoutes);
 
 app.get("/error", (req, res) => {
   res.send("Ada Kesalahan. Silahkan coba lagi nanti");
@@ -63,16 +66,6 @@ app.get("/login", (req, res) => {
   setTimeout(() => {
     res.redirect("/#/login");
   }, 1000);
-});
-
-app.get("/status", (req, res) => {
-  const dbStatus = mongoose.connection.readyState;
-
-  if (dbStatus === 1) {
-    res.json({ status: true, message: "Database connected" });
-  } else {
-    res.json({ status: false, message: "Database not connected" });
-  }
 });
 
 const PORT = process.env.PORT || 5000;

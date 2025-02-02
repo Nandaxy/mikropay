@@ -11,6 +11,7 @@ const Login = ({ setAccessToken }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [dbStatus, setDbStatus] = useState(true);
+  const [dbCode, setDbCode] = useState("");
   const navigate = useNavigate();
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -21,8 +22,10 @@ const Login = ({ setAccessToken }) => {
         const response = await getAction({ endpoint: "status" });
 
         setDbStatus(response.status);
+        setDbCode(response.code);
       } catch (err) {
         setDbStatus(false);
+        setDbCode(err.response.data.code);
       }
     };
     checkDbStatus();
@@ -76,7 +79,11 @@ const Login = ({ setAccessToken }) => {
     </div>
   );
 
-  if (!dbStatus) {
+  if (!dbStatus & (dbCode === "FIRST_TIME")) {
+    navigate("/setup/install");
+  }
+
+  if (!dbStatus & (dbCode === "ERROR")) {
     return <DbDownComponent />;
   }
 
@@ -131,10 +138,7 @@ const Login = ({ setAccessToken }) => {
               Sign In
             </Button>
           ) : (
-            <Button
-              disabled
-              className="w-full px-4 py-2 font-bold rounded-md"
-            >
+            <Button disabled className="w-full px-4 py-2 font-bold rounded-md">
               Loading
             </Button>
           )}
