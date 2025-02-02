@@ -12,7 +12,7 @@ const RegisterUserPage = () => {
   const [error, setError] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [exist, setExist] = useState(false);
+  const [exist, setExist] = useState(true);
 
   useEffect(() => {
     const checkStatus = async () => {
